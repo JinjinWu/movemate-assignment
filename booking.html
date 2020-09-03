@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <link rel="stylesheet" href="https://ajax.googleapis.com/ajax/libs/angular_material/1.1.24/angular-material.min.css">
+</head>
+
+<script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.8.0/angular.min.js"></script>
+<script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.8.0/angular.min.js"></script>
+<script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.8.0/angular-animate.min.js"></script>
+<script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.8.0/angular-aria.min.js"></script>
+<script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.8.0/angular-messages.min.js"></script>
+<script src="https://ajax.googleapis.com/ajax/libs/angular_material/1.1.24/angular-material.min.js"></script>
+
+<body ng-app="bookingApp" ng-controller="bookingCtrl" id="bookingBody">
+
+<h2 class="md-display-1">Booking Application</h2>
+
+<p>
+<button ng-show="false" ng-click="save()">Save</button>
+<button ng-show="false" ng-click="clear()">Clear</button>
+</p>
+
+
+<div layout="row">
+
+  <div flex flex-order="1">
+    <h4 class="md-subhead">Select a date:</h4>
+    <md-datepicker ng-model="myDate" md-placeholder="Enter date"
+        md-min-date="minDate" md-max-date="maxDate"></md-datepicker>
+  </div>
+  <div flex flex-order="2">
+    <h4 class="md-subhead">Select a start time:</h4>
+    <div class="md-form">
+      <input
+        type="time"
+        ng-change="start = true"
+        ng-model="startTime"
+        class="form-control"
+        mdbInput
+      />
+    </div>
+  </div>
+  <div flex flex-order="3">
+    <h4 class="md-subhead">Select an end time:</h4>
+    <div class="md-form">
+      <input
+        type="time"
+        ng-change="end = true"
+        ng-model="endTime"
+        class="form-control"
+        mdbInput
+      />
+    </div>
+  </div>
+</div>
+
+<p></p>
+
+<div layout="row">
+  <div flex>
+    <md-button ng-disabled="!(start && end)" ng-click="calculate($event)" class="md-raised md-primary">Confirm Booking</md-button>
+  </div>
+</div>
+
+
+
+<script>
+var app = angular.module("bookingApp", ['ngMaterial', 'ngMessages']);
+app.controller("bookingCtrl", function($scope, $mdDialog) {
+    $scope.myDate = new Date();
+    $scope.minDate = $scope.myDate;
+    $scope.maxDate = new Date(
+        $scope.myDate.getFullYear() + 1,
+        $scope.myDate.getMonth(),
+        $scope.myDate.getDate());
+    $scope.start = false;
+    $scope.end = false;
+
+    $scope.clear = function() {
+        $scope.message = "";
+    };
+    $scope.calculate = function(e) {
+      let title = "";
+      let text = "";
+      let numHours = Math.ceil(($scope.endTime - $scope.startTime) / (1000*60*60));
+
+      if (numHours <= 0) {
+          title = "Invalid input!"
+          text = "Your end time is earlier than your start time! Please enter a valid time period."
+      } else {
+          let cost = 0;
+          if ($scope.myDate.getDay() == 6 || $scope.myDate.getDay() == 0) {
+              cost = numHours * 150;
+          } else {
+              cost = numHours * 100;
+          }
+          title = "Successful booking!"
+          text = "You've successfully booked for " + $scope.myDate.toDateString()
+                  + "! Your total cost is: $" + cost.toString();
+      }
+
+      $mdDialog.show(
+        $mdDialog.alert()
+          .parent(angular.element(document.querySelector('#bookingBody')))
+          .clickOutsideToClose(true)
+          .title(title)
+          .textContent(text)
+          .ariaLabel('Success')
+          .ok('OK')
+          .targetEvent(e)
+        );
+    };
+
+});
+</script>
+
+</body>
+</html>
